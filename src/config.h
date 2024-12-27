@@ -1,12 +1,12 @@
 /**
- * @file    main.h
+ * @file    config.h
  * @author  Jose Miguel Rios Rubio <jrios.github@gmail.com>
  * @date    2024-12-27
  * @version 1.0.0
  *
  * @section DESCRIPTION
  *
- * Project Main file.
+ * ESPMULTILOG Configuration Data header file.
  *
  * @section LICENSE
  *
@@ -35,73 +35,68 @@
 
 /*****************************************************************************/
 
-/* Libraries */
+/* Include Guard */
 
-// Framework Library
-#include <Arduino.h>
-
-// Standard C++ Libraries
-#include <cstdint>
-
-// Project Headers
-#include "config.h"
+#ifndef CONFIG_H
+#define CONFIG_H
 
 /*****************************************************************************/
 
-/* Function Prototypes */
+/* Configurations */
 
-void serial_init();
+// Default Project Name
+#if !defined(SET_PROJECT_NAME)
+    #define SET_PROJECT_NAME "esp32_project"
+#endif
+
+// Default Firmware Application Version if not provided
+#if !defined(SET_FW_APP_VERSION_X)
+    #define SET_FW_APP_VERSION_X 1
+#endif
+#if !defined(SET_FW_APP_VERSION_Y)
+    #define SET_FW_APP_VERSION_Y 0
+#endif
+#if !defined(SET_FW_APP_VERSION_Z)
+    #define SET_FW_APP_VERSION_Z 0
+#endif
 
 /*****************************************************************************/
 
-/* Global Elements */
+/* System Configuration Constants */
 
-// None
-
-/*****************************************************************************/
-
-/* Setup & Loop Functions */
-
-void setup()
+namespace ns_const
 {
-    // Serial Initialization
-    serial_init();
-}
+    /**
+     * @brief Default Project Name.
+     */
+    static constexpr char PROJECT_NAME[] = SET_PROJECT_NAME;
 
-void loop()
-{
-    static const uint16_t T_INCREASE_UPTIME_MS = 1000U;
-    static uint32_t uptime = 0U;
-    static unsigned long t0 = millis();
+    /**
+     * @brief Firmware Application Major Version.
+     */
+    static constexpr uint8_t FW_APP_VERSION_X
+        = static_cast<uint8_t>(SET_FW_APP_VERSION_X);
 
-    if (millis() - t0 >= T_INCREASE_UPTIME_MS)
-    {
-        Serial.printf("Uptime: %lu seconds\n", uptime);
-        uptime = uptime + 1U;
-        t0 = millis();
-    }
+    /**
+     * @brief Firmware Application Minor Version.
+     */
+    static constexpr uint8_t FW_APP_VERSION_Y
+        = static_cast<uint8_t>(SET_FW_APP_VERSION_Y);
 
-    delay(10);
-}
+    /**
+     * @brief Firmware Application Patch Version.
+     */
+    static constexpr uint8_t FW_APP_VERSION_Z
+        = static_cast<uint8_t>(SET_FW_APP_VERSION_Z);
 
-/*****************************************************************************/
-
-/* Auxiliary Functions */
-
-void serial_init()
-{
-    using namespace ns_const;
-
-    Serial.begin(DEFAULT_UART_BAUD_RATE);
-
-    Serial.printf("\n\n---------\n\n");
-    Serial.printf("Project: %s\n", PROJECT_NAME);
-    Serial.printf("FW Version: v%u.%u.%u (%s %s)\n", FW_APP_VERSION_X,
-        FW_APP_VERSION_Y, FW_APP_VERSION_Z, __DATE__, __TIME__);
-    Serial.printf("ESP-IDF Version: %s\n", esp_get_idf_version());
-    Serial.printf("\n");
-
-    Serial.printf("[OK] Serial init\n");
+    /**
+     * @brief Default Debug Serial Port Speed.
+     */
+    static constexpr uint32_t DEFAULT_UART_BAUD_RATE = 115200U;
 }
 
 /*****************************************************************************/
+
+/* Include Guard Close */
+
+#endif /* CONFIG_H */
