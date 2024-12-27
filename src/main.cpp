@@ -66,6 +66,8 @@ void setup()
 {
     // Serial Initialization
     serial_init();
+
+    Serial.printf("\n");
 }
 
 void loop()
@@ -99,6 +101,7 @@ void serial_init()
     Serial.printf("FW Version: v%u.%u.%u (%s %s)\n", FW_APP_VERSION_X,
         FW_APP_VERSION_Y, FW_APP_VERSION_Z, __DATE__, __TIME__);
     Serial.printf("ESP-IDF Version: %s\n", esp_get_idf_version());
+    Serial.printf("PSRAM Size: %lu\n", ESP.getPsramSize());
     Serial.printf("\n");
 
     Serial.printf("[OK] Serial init\n");
