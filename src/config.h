@@ -60,6 +60,14 @@
     #define SET_FW_APP_VERSION_Z 0
 #endif
 
+// I2C Pins Touchscreen
+#define SDA_FT6236 38
+#define SCL_FT6236 39
+
+// GPIO Pins
+#define IO_LCD_BACKLIGHT 46
+#define IO_BUZZER 20
+
 /*****************************************************************************/
 
 /* System Configuration Constants */
@@ -93,6 +101,22 @@ namespace ns_const
      * @brief Default Debug Serial Port Speed.
      */
     static constexpr uint32_t DEFAULT_UART_BAUD_RATE = 115200U;
+
+    /**
+     * @brief Screen Width.
+     */
+    static constexpr uint16_t SCREEN_WIDTH  = 480U;
+
+    /**
+     * @brief Screen Height.
+     */
+    static constexpr uint16_t SCREEN_HEIGHT = 320U;
+
+    /**
+     * @brief Screen Buffer Size.
+     */
+    static constexpr uint32_t SCREEN_BUFFER_SIZE
+        = (SCREEN_WIDTH * SCREEN_HEIGHT / 5U);
 }
 
 /*****************************************************************************/
