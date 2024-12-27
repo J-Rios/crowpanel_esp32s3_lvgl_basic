@@ -42,6 +42,13 @@
 
 /*****************************************************************************/
 
+/* Libraries */
+
+// Standard C++ Libraries
+#include <cstdint>
+
+/*****************************************************************************/
+
 /* Configurations */
 
 // Default Project Name
@@ -101,6 +108,21 @@ namespace ns_const
      * @brief Default Debug Serial Port Speed.
      */
     static constexpr uint32_t DEFAULT_UART_BAUD_RATE = 115200U;
+
+    /**
+     * @brief Buzzer Minimum Frequency.
+     */
+    static constexpr const uint16_t BUZZER_MIN_FREQ_HZ = 0U;
+
+    /**
+     * @brief Buzzer Maximum Frequency.
+     */
+    static constexpr const uint16_t BUZZER_MAX_FREQ_HZ = 2700U;
+
+    /**
+     * @brief Buzzer Duty Cycle.
+     */
+    static constexpr const uint8_t BUZZER_DUTY_CYCLE = 50U;
 }
 
 /*****************************************************************************/

@@ -49,6 +49,7 @@
 // Project Headers
 #include "config/config.h"
 #include "config/config_screen.h"
+#include "buzzer/driver_passive_buzzer.h"
 #include "touch_panel/driver_ft6236.h"
 
 /*****************************************************************************/
@@ -57,12 +58,14 @@
 
 // Initialization
 void serial_init();
+void buzzer_init();
 void touch_init();
 void screen_init();
 void display_init();
 
 // Management
 void manage_uptime();
+void manage_buzzer();
 void manage_ui();
 
 // LVGL Callbacks
@@ -76,6 +79,10 @@ void ui_draw_screen_1();
 /*****************************************************************************/
 
 /* Global Elements */
+
+// Buzzer
+PassiveBuzzer Buzzer(IO_BUZZER, 0U, ns_const::BUZZER_MIN_FREQ_HZ,
+    ns_const::BUZZER_MAX_FREQ_HZ, ns_const::BUZZER_DUTY_CYCLE);
 
 // Screen Device
 LGFX Screen;
@@ -106,6 +113,7 @@ void setup()
 {
     // Initializations
     serial_init();
+    buzzer_init();
     touch_init();
     screen_init();
     display_init();
@@ -119,6 +127,7 @@ void setup()
 void loop()
 {
     manage_uptime();
+    manage_buzzer();
     manage_ui();
     delay(10);
 }
@@ -142,6 +151,14 @@ void serial_init()
     Serial.printf("\n");
 
     Serial.printf("[OK] Serial init\n");
+}
+
+void buzzer_init()
+{
+    pinMode(IO_BUZZER, OUTPUT);
+    digitalWrite(IO_BUZZER, LOW);
+    Buzzer.init();
+    Buzzer.beep(2700U, 1000U);
 }
 
 void touch_init()
@@ -206,6 +223,11 @@ void manage_uptime()
         uptime = uptime + 1U;
         t0 = millis();
     }
+}
+
+void manage_buzzer()
+{
+    Buzzer.process();
 }
 
 void manage_ui()
