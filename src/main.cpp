@@ -48,6 +48,7 @@
 
 // Project Headers
 #include "config/config.h"
+#include "config/config_screen.h"
 #include "touch_panel/driver_ft6236.h"
 
 /*****************************************************************************/
@@ -57,6 +58,7 @@
 // Initialization
 void serial_init();
 void touch_init();
+void screen_init();
 
 // Management
 void manage_uptime();
@@ -66,6 +68,7 @@ void manage_touch();
 
 /* Global Elements */
 
+LGFX Screen;
 uint16_t touch_x = 0U;
 uint16_t touch_y = 0U;
 
@@ -75,12 +78,9 @@ uint16_t touch_y = 0U;
 
 void setup()
 {
-    // Serial Initialization
     serial_init();
-
-    // Touchscreen Initialization
     touch_init();
-
+    screen_init();
     Serial.printf("\n");
 }
 
@@ -120,6 +120,17 @@ void touch_init()
     {   Serial.printf("[OK] Touch init\n");   }
     else
     {   Serial.printf("[FAIL] Touch init (error code %d)\n", (int)(error));   }
+}
+
+void screen_init()
+{
+    Screen.begin();
+    Screen.setRotation(1U);
+    Screen.fillScreen(TFT_BLACK);
+    delay(500);
+    pinMode(IO_LCD_BACKLIGHT, OUTPUT);
+    digitalWrite(IO_LCD_BACKLIGHT, HIGH);
+    Serial.printf("[OK] Screen init\n");
 }
 
 /*****************************************************************************/

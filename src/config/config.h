@@ -101,22 +101,6 @@ namespace ns_const
      * @brief Default Debug Serial Port Speed.
      */
     static constexpr uint32_t DEFAULT_UART_BAUD_RATE = 115200U;
-
-    /**
-     * @brief Screen Width.
-     */
-    static constexpr uint16_t SCREEN_WIDTH  = 480U;
-
-    /**
-     * @brief Screen Height.
-     */
-    static constexpr uint16_t SCREEN_HEIGHT = 320U;
-
-    /**
-     * @brief Screen Buffer Size.
-     */
-    static constexpr uint32_t SCREEN_BUFFER_SIZE
-        = (SCREEN_WIDTH * SCREEN_HEIGHT / 5U);
 }
 
 /*****************************************************************************/
