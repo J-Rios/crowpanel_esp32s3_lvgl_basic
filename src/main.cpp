@@ -43,6 +43,10 @@
 // Standard C++ Libraries
 #include <cstdint>
 
+// Graphic Libraies
+#include <LovyanGFX.hpp>
+#include <lvgl.h>
+
 // Project Headers
 #include "config.h"
 
