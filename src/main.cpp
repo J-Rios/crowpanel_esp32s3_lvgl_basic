@@ -95,6 +95,7 @@ char text[MAX_TEXT_LENGTH];
 // UI Elements
 lv_obj_t* ui_info_box = nullptr;
 lv_obj_t* ui_label_info = nullptr;
+lv_obj_t* label_uptime = nullptr;
 
 /*****************************************************************************/
 
@@ -198,7 +199,9 @@ void manage_uptime()
 
     if (millis() - t0 >= T_INCREASE_UPTIME_MS)
     {
-        Serial.printf("Uptime: %lu seconds\n", uptime);
+        snprintf(text, MAX_TEXT_LENGTH, "Uptime: %lu seconds", uptime);
+        lv_label_set_text(label_uptime, text);
+        Serial.printf("%s\n", text);
         uptime = uptime + 1U;
         t0 = millis();
     }
@@ -278,6 +281,11 @@ void ui_draw_screen_1()
         (int)(FW_APP_VERSION_Z), __DATE__, __TIME__, esp_get_idf_version(),
         ESP.getPsramSize());
     lv_label_set_text(ui_label_info, text);
+
+    /* Label Uptime */
+    label_uptime = lv_label_create(ui_info_box);
+    snprintf(text, MAX_TEXT_LENGTH, "Uptime: 0 seconds");
+    lv_label_set_text(label_uptime, text);
 }
 
 /*****************************************************************************/
