@@ -96,6 +96,7 @@ char text[MAX_TEXT_LENGTH];
 lv_obj_t* ui_info_box = nullptr;
 lv_obj_t* ui_label_info = nullptr;
 lv_obj_t* label_uptime = nullptr;
+lv_obj_t* label_touch = nullptr;
 
 /*****************************************************************************/
 
@@ -244,7 +245,10 @@ void display_manage_touch(lv_indev_drv_t* indev_driver, lv_indev_data_t* data)
         touch_x = static_cast<int>(data->point.x);
         touch_y = static_cast<int>(data->point.y);
 
-        Serial.printf("x, y: %d, %d\n", touch_x, touch_y);
+        snprintf(text, MAX_TEXT_LENGTH, "Touch X, Y: %u, %u",
+            touch_x, touch_y);
+        lv_label_set_text(label_touch, text);
+        Serial.printf("%s\n", text);
     }
     else
     {   data->state = LV_INDEV_STATE_REL;   }
@@ -286,6 +290,14 @@ void ui_draw_screen_1()
     label_uptime = lv_label_create(ui_info_box);
     snprintf(text, MAX_TEXT_LENGTH, "Uptime: 0 seconds");
     lv_label_set_text(label_uptime, text);
+
+    /* Label Touch */
+    label_touch = lv_label_create(lv_scr_act());
+    lv_obj_align(label_touch, LV_ALIGN_BOTTOM_MID, 0, -15);
+    lv_obj_set_style_border_width(label_touch, 2, LV_PART_MAIN);
+    lv_obj_set_style_text_color(label_touch, LABEL_TEXT_COLOR, LV_PART_MAIN);
+    snprintf(text, MAX_TEXT_LENGTH, "Touch X, Y: 000, 000");
+    lv_label_set_text(label_touch, text);
 }
 
 /*****************************************************************************/
