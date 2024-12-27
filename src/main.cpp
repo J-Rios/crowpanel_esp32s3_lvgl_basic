@@ -59,18 +59,42 @@
 void serial_init();
 void touch_init();
 void screen_init();
+void display_init();
 
 // Management
 void manage_uptime();
-void manage_touch();
+void manage_ui();
+
+// LVGL Callbacks
+void display_refresh(lv_disp_drv_t* disp_drv, const lv_area_t* area,
+    lv_color_t* color_p);
+void display_manage_touch(lv_indev_drv_t* indev_driver, lv_indev_data_t* data);
+
+// UI Draw
+void ui_draw_screen_1();
 
 /*****************************************************************************/
 
 /* Global Elements */
 
+// Screen Device
 LGFX Screen;
+
+// Touch Panel
 uint16_t touch_x = 0U;
 uint16_t touch_y = 0U;
+
+// UI Render Buffer
+lv_disp_draw_buf_t draw_buf;
+lv_color_t buf[ns_const::SCREEN_BUFFER_SIZE];
+
+// UI Draw Texts buffer
+static const uint32_t MAX_TEXT_LENGTH = 1024U;
+char text[MAX_TEXT_LENGTH];
+
+// UI Elements
+lv_obj_t* ui_info_box = nullptr;
+lv_obj_t* ui_label_info = nullptr;
 
 /*****************************************************************************/
 
@@ -78,17 +102,22 @@ uint16_t touch_y = 0U;
 
 void setup()
 {
+    // Initializations
     serial_init();
     touch_init();
     screen_init();
+    display_init();
+
+    // Draw First Screen
+    ui_draw_screen_1();
+
     Serial.printf("\n");
 }
 
 void loop()
 {
     manage_uptime();
-    manage_touch();
-
+    manage_ui();
     delay(10);
 }
 
@@ -107,7 +136,7 @@ void serial_init()
     Serial.printf("FW Version: v%u.%u.%u (%s %s)\n", FW_APP_VERSION_X,
         FW_APP_VERSION_Y, FW_APP_VERSION_Z, __DATE__, __TIME__);
     Serial.printf("ESP-IDF Version: %s\n", esp_get_idf_version());
-    Serial.printf("PSRAM Size: %lu\n", ESP.getPsramSize());
+    Serial.printf("PSRAM Size: %lu Bytes\n", ESP.getPsramSize());
     Serial.printf("\n");
 
     Serial.printf("[OK] Serial init\n");
@@ -133,6 +162,30 @@ void screen_init()
     Serial.printf("[OK] Screen init\n");
 }
 
+void display_init()
+{
+    lv_init();
+    lv_disp_draw_buf_init(&draw_buf, buf, NULL, ns_const::SCREEN_BUFFER_SIZE);
+
+    // Setup Display
+    static lv_disp_drv_t disp_drv;
+    lv_disp_drv_init(&disp_drv);
+    disp_drv.hor_res = ns_const::SCREEN_WIDTH;
+    disp_drv.ver_res = ns_const::SCREEN_HEIGHT;
+    disp_drv.flush_cb = display_refresh;
+    disp_drv.draw_buf = &draw_buf;
+    lv_disp_drv_register(&disp_drv);
+
+    // Setup Touch Control Callback
+    static lv_indev_drv_t indev_drv;
+    lv_indev_drv_init(&indev_drv);
+    indev_drv.type = LV_INDEV_TYPE_POINTER;
+    indev_drv.read_cb = display_manage_touch;
+    lv_indev_drv_register(&indev_drv);
+
+    Serial.printf("[OK] Display init\n");
+}
+
 /*****************************************************************************/
 
 /* Management Functions */
@@ -151,7 +204,29 @@ void manage_uptime()
     }
 }
 
-void manage_touch()
+void manage_ui()
+{
+    lv_timer_handler();
+}
+
+/*****************************************************************************/
+
+/* LVGL UI Callbacks */
+
+void display_refresh(lv_disp_drv_t* disp_drv, const lv_area_t* area,
+    lv_color_t* color_p)
+{
+    uint32_t w = (area->x2 - area->x1 + 1U);
+    uint32_t h = (area->y2 - area->y1 + 1U);
+
+    Screen.startWrite();
+    Screen.setAddrWindow(area->x1, area->y1, w, h);
+    Screen.writePixels((lgfx::rgb565_t *)&color_p->full, w * h);
+    Screen.endWrite();
+    lv_disp_flush_ready(disp_drv);
+}
+
+void display_manage_touch(lv_indev_drv_t* indev_driver, lv_indev_data_t* data)
 {
     int pos[2] = {0, 0};
 
@@ -159,10 +234,50 @@ void manage_touch()
 
     if ( (pos[0] > 0) && (pos[1] > 0) )
     {
-        touch_x = ns_const::SCREEN_WIDTH - static_cast<uint16_t>(pos[1]);
-        touch_y = static_cast<uint16_t>(pos[0]);
+        data->state = LV_INDEV_STATE_PR;
+        data->point.x = ns_const::SCREEN_WIDTH-pos[1];
+        data->point.y = pos[0];
+
+        touch_x = static_cast<int>(data->point.x);
+        touch_y = static_cast<int>(data->point.y);
+
         Serial.printf("x, y: %d, %d\n", touch_x, touch_y);
     }
+    else
+    {   data->state = LV_INDEV_STATE_REL;   }
+}
+
+/*****************************************************************************/
+
+/* LVGL UI Screen Draws */
+
+void ui_draw_screen_1()
+{
+    using namespace ns_const;
+
+    static const lv_color_t LABEL_BORDER_COLOR = lv_color_hex(0x00000000U);
+    static const lv_color_t LABEL_TEXT_COLOR = lv_color_hex(0x00000000U);
+
+    // Container
+    ui_info_box = lv_obj_create(lv_scr_act());
+    lv_obj_set_flex_flow(ui_info_box, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_size(ui_info_box, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    lv_obj_align(ui_info_box, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_set_style_bg_color(ui_info_box, lv_color_hex(0xDDDDDD), LV_PART_MAIN);
+    lv_obj_set_style_pad_all(ui_info_box, 10, LV_PART_MAIN);
+
+    /* Label Info */
+    ui_label_info = lv_label_create(ui_info_box);
+    lv_obj_set_style_text_color(ui_label_info, LABEL_TEXT_COLOR, LV_PART_MAIN);
+    snprintf(text, MAX_TEXT_LENGTH,
+        "Project: %s\n"
+        "FW Version: v%d.%d.%d (%s %s)\n"
+        "ESP-IDF Version: %s\n"
+        "PSRAM Size: %lu Bytes",
+        PROJECT_NAME, (int)(FW_APP_VERSION_X), (int)(FW_APP_VERSION_Y),
+        (int)(FW_APP_VERSION_Z), __DATE__, __TIME__, esp_get_idf_version(),
+        ESP.getPsramSize());
+    lv_label_set_text(ui_label_info, text);
 }
 
 /*****************************************************************************/
