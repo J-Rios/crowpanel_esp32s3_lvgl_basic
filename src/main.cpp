@@ -44,23 +44,30 @@
 #include <cstdint>
 
 // Graphic Libraies
-#include <LovyanGFX.hpp>
 #include <lvgl.h>
 
 // Project Headers
-#include "config.h"
+#include "config/config.h"
+#include "touch_panel/driver_ft6236.h"
 
 /*****************************************************************************/
 
 /* Function Prototypes */
 
+// Initialization
 void serial_init();
+void touch_init();
+
+// Management
+void manage_uptime();
+void manage_touch();
 
 /*****************************************************************************/
 
 /* Global Elements */
 
-// None
+uint16_t touch_x = 0U;
+uint16_t touch_y = 0U;
 
 /*****************************************************************************/
 
@@ -71,28 +78,23 @@ void setup()
     // Serial Initialization
     serial_init();
 
+    // Touchscreen Initialization
+    touch_init();
+
     Serial.printf("\n");
 }
 
 void loop()
 {
-    static const uint16_t T_INCREASE_UPTIME_MS = 1000U;
-    static uint32_t uptime = 0U;
-    static unsigned long t0 = millis();
-
-    if (millis() - t0 >= T_INCREASE_UPTIME_MS)
-    {
-        Serial.printf("Uptime: %lu seconds\n", uptime);
-        uptime = uptime + 1U;
-        t0 = millis();
-    }
+    manage_uptime();
+    manage_touch();
 
     delay(10);
 }
 
 /*****************************************************************************/
 
-/* Auxiliary Functions */
+/* Initialization Functions */
 
 void serial_init()
 {
@@ -109,6 +111,47 @@ void serial_init()
     Serial.printf("\n");
 
     Serial.printf("[OK] Serial init\n");
+}
+
+void touch_init()
+{
+    uint8_t error = touch_panel_init(SDA_FT6236, SCL_FT6236);
+    if (error == 0)
+    {   Serial.printf("[OK] Touch init\n");   }
+    else
+    {   Serial.printf("[FAIL] Touch init (error code %d)\n", (int)(error));   }
+}
+
+/*****************************************************************************/
+
+/* Management Functions */
+
+void manage_uptime()
+{
+    static const uint16_t T_INCREASE_UPTIME_MS = 1000U;
+    static uint32_t uptime = 0U;
+    static unsigned long t0 = millis();
+
+    if (millis() - t0 >= T_INCREASE_UPTIME_MS)
+    {
+        Serial.printf("Uptime: %lu seconds\n", uptime);
+        uptime = uptime + 1U;
+        t0 = millis();
+    }
+}
+
+void manage_touch()
+{
+    int pos[2] = {0, 0};
+
+    touch_panel_get_position(pos);
+
+    if ( (pos[0] > 0) && (pos[1] > 0) )
+    {
+        touch_x = ns_const::SCREEN_WIDTH - static_cast<uint16_t>(pos[1]);
+        touch_y = static_cast<uint16_t>(pos[0]);
+        Serial.printf("x, y: %d, %d\n", touch_x, touch_y);
+    }
 }
 
 /*****************************************************************************/

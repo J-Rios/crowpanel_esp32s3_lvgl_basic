@@ -6,7 +6,7 @@
  *
  * @section DESCRIPTION
  *
- * ESPMULTILOG Configuration Data header file.
+ * Configuration Data header file.
  *
  * @section LICENSE
  *
