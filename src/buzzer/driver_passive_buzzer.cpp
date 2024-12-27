@@ -68,11 +68,13 @@ void PassiveBuzzer::beep_off()
     t0 = 0U;
     set_pwm(0U);
 }
-
+#include "Arduino.h"
 void PassiveBuzzer::beep(uint16_t frequency, const uint16_t beep_time_ms)
 {
     // Do nothing if component is not initialized
     if (is_initialized == false)
+    {   return;   }
+    if (beeping)
     {   return;   }
 
     // Stop any beep
@@ -83,9 +85,9 @@ void PassiveBuzzer::beep(uint16_t frequency, const uint16_t beep_time_ms)
 
     // Setup new frequency
     if (frequency < _min_freq)
-    { frequency = _min_freq;   }
+    {   frequency = _min_freq;   }
     if (frequency > _max_freq)
-    { frequency = _max_freq;   }+
+    {   frequency = _max_freq;   }
     ledcSetup(_pwm_channel, frequency, 8U);
 }
 
