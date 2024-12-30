@@ -301,8 +301,6 @@ void display_manage_touch(lv_indev_drv_t* indev_driver, lv_indev_data_t* data)
             touch_x, touch_y);
         lv_label_set_text(ui_label_touch, text);
         Serial.printf("%s\n", text);
-
-        Buzzer.beep(buzzer_freq, 100);
     }
     else
     {   data->state = LV_INDEV_STATE_REL;   }
@@ -348,16 +346,31 @@ void ui_draw_screen_1()
     lv_label_set_text(ui_label_buzzer_freq, "Buzzer Frequency: 0 Hz");
     lv_obj_set_style_text_color(ui_label_buzzer_freq,
         COLOR_ORANGE, LV_PART_MAIN);
-    lv_obj_align(ui_label_buzzer_freq, LV_ALIGN_CENTER, 0, 40);
+    lv_obj_align(ui_label_buzzer_freq, LV_ALIGN_CENTER, 0, 20);
 
     /* Buzzer Frequency slider */
     ui_slider_buzzer_freq = lv_slider_create(lv_scr_act());
     lv_obj_set_width(ui_slider_buzzer_freq, 200);
-    lv_obj_align(ui_slider_buzzer_freq, LV_ALIGN_CENTER, 0, 60);
+    lv_obj_align(ui_slider_buzzer_freq, LV_ALIGN_CENTER, 0, 40);
     lv_slider_set_range(ui_slider_buzzer_freq,
         BUZZER_MIN_FREQ_HZ, BUZZER_MAX_FREQ_HZ);
     lv_obj_add_event_cb(ui_slider_buzzer_freq,
         slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+
+    /* Beep Button */
+    lv_obj_t* btn = lv_btn_create(lv_scr_act());
+    lv_obj_align(btn, LV_ALIGN_CENTER, 0, 80);
+    lv_obj_t* btn_label = lv_label_create(btn);
+    lv_label_set_text(btn_label, "Beep");
+    lv_obj_add_event_cb(btn, [](lv_event_t* event)
+    {
+        lv_event_code_t code = lv_event_get_code(event);
+        if (code == LV_EVENT_CLICKED)
+        {
+            Buzzer.beep(buzzer_freq, 100U);
+            Serial.println("Button beep pressed");
+        }
+    }, LV_EVENT_ALL, NULL);
 
     /* Label Touch */
     ui_label_touch = lv_label_create(lv_scr_act());
