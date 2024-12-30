@@ -162,8 +162,10 @@ void buzzer_init()
 {
     pinMode(IO_BUZZER, OUTPUT);
     digitalWrite(IO_BUZZER, LOW);
+#if !defined(BUZZER_MUTE)
     Buzzer.init();
     Buzzer.beep(buzzer_freq, 100U);
+#endif
 }
 
 void touch_init()
@@ -238,7 +240,9 @@ void manage_uptime()
 
 void manage_buzzer()
 {
+#if !defined(BUZZER_MUTE)
     Buzzer.process();
+#endif
 }
 
 void manage_ui()
