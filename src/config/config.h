@@ -112,7 +112,7 @@ namespace ns_const
     /**
      * @brief Buzzer Minimum Frequency.
      */
-    static constexpr const uint16_t BUZZER_MIN_FREQ_HZ = 0U;
+    static constexpr const uint16_t BUZZER_MIN_FREQ_HZ = 100U;
 
     /**
      * @brief Buzzer Maximum Frequency.

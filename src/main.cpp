@@ -92,7 +92,7 @@ uint16_t touch_x = 0U;
 uint16_t touch_y = 0U;
 
 // Buzzer Frequency
-uint16_t buzzer_freq = ns_const::BUZZER_MAX_FREQ_HZ;
+uint16_t buzzer_freq = ns_const::BUZZER_MIN_FREQ_HZ;
 
 // UI Render Buffer
 lv_disp_draw_buf_t draw_buf;
@@ -164,7 +164,7 @@ void buzzer_init()
     digitalWrite(IO_BUZZER, LOW);
 #if !defined(BUZZER_MUTE)
     Buzzer.init();
-    Buzzer.beep(buzzer_freq, 100U);
+    Buzzer.beep(ns_const::BUZZER_MAX_FREQ_HZ, 100U);
 #endif
 }
 
@@ -343,14 +343,16 @@ void ui_draw_screen_1()
 
     /* Buzzer Frequency Label */
     ui_label_buzzer_freq = lv_label_create(lv_scr_act());
-    lv_label_set_text(ui_label_buzzer_freq, "Buzzer Frequency: 0 Hz");
+    snprintf(text, MAX_TEXT_LENGTH, "Buzzer Frequency: %d Hz",
+        static_cast<int>(buzzer_freq));
+    lv_label_set_text(ui_label_buzzer_freq, text);
     lv_obj_set_style_text_color(ui_label_buzzer_freq,
         COLOR_ORANGE, LV_PART_MAIN);
     lv_obj_align(ui_label_buzzer_freq, LV_ALIGN_CENTER, 0, 20);
 
     /* Buzzer Frequency slider */
     ui_slider_buzzer_freq = lv_slider_create(lv_scr_act());
-    lv_obj_set_width(ui_slider_buzzer_freq, 200);
+    lv_obj_set_width(ui_slider_buzzer_freq, 250);
     lv_obj_align(ui_slider_buzzer_freq, LV_ALIGN_CENTER, 0, 40);
     lv_slider_set_range(ui_slider_buzzer_freq,
         BUZZER_MIN_FREQ_HZ, BUZZER_MAX_FREQ_HZ);
