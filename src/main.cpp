@@ -180,7 +180,6 @@ void screen_init()
     Screen.begin();
     Screen.setRotation(1U);
     Screen.fillScreen(TFT_BLACK);
-    delay(500);
     pinMode(IO_LCD_BACKLIGHT, OUTPUT);
     digitalWrite(IO_LCD_BACKLIGHT, HIGH);
     Serial.printf("[OK] Screen init\n");
@@ -199,6 +198,13 @@ void display_init()
     disp_drv.flush_cb = display_refresh;
     disp_drv.draw_buf = &draw_buf;
     lv_disp_drv_register(&disp_drv);
+
+    // Setup Background
+    lv_obj_t* screen = lv_scr_act();
+    lv_obj_set_style_bg_color(screen, COLOR_BLACK,
+        LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(screen, LV_OPA_COVER,
+        LV_PART_MAIN | LV_STATE_DEFAULT);
 
     // Setup Touch Control Callback
     static lv_indev_drv_t indev_drv;
@@ -306,20 +312,17 @@ void ui_draw_screen_1()
 {
     using namespace ns_const;
 
-    static const lv_color_t LABEL_BORDER_COLOR = lv_color_hex(0x00000000U);
-    static const lv_color_t LABEL_TEXT_COLOR = lv_color_hex(0x00000000U);
-
     // Container
     ui_info_box = lv_obj_create(lv_scr_act());
     lv_obj_set_flex_flow(ui_info_box, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_size(ui_info_box, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
     lv_obj_align(ui_info_box, LV_ALIGN_TOP_MID, 0, 30);
-    lv_obj_set_style_bg_color(ui_info_box, lv_color_hex(0xDDDDDD), LV_PART_MAIN);
+    lv_obj_set_style_bg_color(ui_info_box, COLOR_GREY_LIGHT, LV_PART_MAIN);
     lv_obj_set_style_pad_all(ui_info_box, 10, LV_PART_MAIN);
 
     /* Label Info */
     ui_label_info = lv_label_create(ui_info_box);
-    lv_obj_set_style_text_color(ui_label_info, LABEL_TEXT_COLOR, LV_PART_MAIN);
+    lv_obj_set_style_text_color(ui_label_info, COLOR_WHITE, LV_PART_MAIN);
     snprintf(text, MAX_TEXT_LENGTH,
         "Project: %s\n"
         "FW Version: v%d.%d.%d (%s %s)\n"
@@ -332,28 +335,31 @@ void ui_draw_screen_1()
 
     /* Label Uptime */
     ui_label_uptime = lv_label_create(ui_info_box);
+    lv_obj_set_style_text_color(ui_label_uptime, COLOR_WHITE, LV_PART_MAIN);
     snprintf(text, MAX_TEXT_LENGTH, "Uptime: 0 seconds");
     lv_label_set_text(ui_label_uptime, text);
 
     /* Buzzer Frequency Label */
     ui_label_buzzer_freq = lv_label_create(lv_scr_act());
     lv_label_set_text(ui_label_buzzer_freq, "Buzzer Frequency: 0 Hz");
-    lv_obj_align(ui_label_buzzer_freq, LV_ALIGN_CENTER, 0, 30);
+    lv_obj_set_style_text_color(ui_label_buzzer_freq,
+        COLOR_ORANGE, LV_PART_MAIN);
+    lv_obj_align(ui_label_buzzer_freq, LV_ALIGN_CENTER, 0, 40);
 
     /* Buzzer Frequency slider */
     ui_slider_buzzer_freq = lv_slider_create(lv_scr_act());
     lv_obj_set_width(ui_slider_buzzer_freq, 200);
-    lv_obj_align(ui_slider_buzzer_freq, LV_ALIGN_CENTER, 0, 50);
+    lv_obj_align(ui_slider_buzzer_freq, LV_ALIGN_CENTER, 0, 60);
     lv_slider_set_range(ui_slider_buzzer_freq,
-        ns_const::BUZZER_MIN_FREQ_HZ, ns_const::BUZZER_MAX_FREQ_HZ);
+        BUZZER_MIN_FREQ_HZ, BUZZER_MAX_FREQ_HZ);
     lv_obj_add_event_cb(ui_slider_buzzer_freq,
         slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 
     /* Label Touch */
     ui_label_touch = lv_label_create(lv_scr_act());
     lv_obj_align(ui_label_touch, LV_ALIGN_BOTTOM_MID, 0, -15);
-    lv_obj_set_style_border_width(ui_label_touch, 2, LV_PART_MAIN);
-    lv_obj_set_style_text_color(ui_label_touch, LABEL_TEXT_COLOR, LV_PART_MAIN);
+    lv_obj_set_style_text_color(ui_label_touch, COLOR_GREEN,
+        LV_PART_MAIN);
     snprintf(text, MAX_TEXT_LENGTH, "Touch X, Y: 000, 000");
     lv_label_set_text(ui_label_touch, text);
 }

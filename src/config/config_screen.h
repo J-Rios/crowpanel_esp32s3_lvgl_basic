@@ -49,6 +49,26 @@
 
 // Graphic Screen Driver
 #include <LovyanGFX.hpp>
+#include <lvgl.h>
+
+/*****************************************************************************/
+
+/* Defines */
+
+// LVGL Colors
+#define COLOR_BLACK                              lv_color_hex(0x000000U)
+#define COLOR_WHITE                              lv_color_hex(0xffffffU)
+#define COLOR_GREY_DARK                          lv_color_hex(0x1f1f1fU)
+#define COLOR_GREY_LIGHT                         lv_color_hex(0x37373dU)
+#define COLOR_BLUE                               lv_color_hex(0x0000ffU)
+#define COLOR_BLUE_BRIGH                         lv_color_hex(0x2179d1U)
+#define COLOR_BLUE_DARK                          lv_color_hex(0x5c9cc9U)
+#define COLOR_BLUE_LIGHT                         lv_color_hex(0x7edafbU)
+#define COLOR_GREEN                              lv_color_hex(0x00ff00U)
+#define COLOR_GREEN_LIGHT                        lv_color_hex(0x448958U)
+#define COLOR_RED                                lv_color_hex(0xff0000U)
+#define COLOR_RED_LIGHT                          lv_color_hex(0xe58064U)
+#define COLOR_ORANGE                             lv_color_hex(0xf39006U)
 
 /*****************************************************************************/
 
