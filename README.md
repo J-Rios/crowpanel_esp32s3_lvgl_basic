@@ -2,7 +2,7 @@
 
 ![Basic Project](doc/device/app_1.png)
 
-Basic project to test Elecrow "CrowPanel ESP32 Terminal" with C++ and PlatformIO.
+Basic projects to test Elecrow "CrowPanel ESP32 Terminal" with C++ and PlatformIO.
 
 This device is a 3.5 inch parallel 480x320 TFT capacitive touch RGB display (RGB by chip ILI9488) based on ESP32-S3 core.
 
