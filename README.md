@@ -1,6 +1,6 @@
 # crowpanel_esp32s3_lvgl_basic
 
-![CrowPanel ESP32 Terminal Overview 1](doc/device/overwiew_1.png)
+![Basic Project](doc/device/app_1.png)
 
 Basic project to test Elecrow "CrowPanel ESP32 Terminal" with C++ and PlatformIO.
 
@@ -13,6 +13,8 @@ The "crow-tail" connector is just the "HY2.0" connector family most commonly sol
 You can use different kind of software tools to design the GUI of your application in your laptop, and export and auto-generated code for LVGL to be added to your peoject. Tools like [LVGL UI Editor](https://github.com/lvgl/lvgl_editor), [EEZ Studio](https://github.com/eez-open/studio), ["SquareLine Studio"](https://vision.squareline.io/), etc.
 
 ## Description
+
+![CrowPanel ESP32 Terminal Overview 1](doc/device/overwiew_1.png)
 
 ![CrowPanel ESP32 Terminal Overview 2](doc/device/overwiew_2.png)
 
