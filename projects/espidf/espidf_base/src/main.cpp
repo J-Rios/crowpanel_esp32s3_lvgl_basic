@@ -60,6 +60,7 @@
 // Project Headers
 #include "config/config.h"
 #include "config/config_screen.h"
+#include "buzzer/driver_passive_buzzer.h"
 #include "touch_panel/driver_ft6236.h"
 
 /*****************************************************************************/
@@ -70,12 +71,14 @@
 extern "C" { void app_main(void); }
 
 // Initialization
+bool buzzer_init();
 void touch_init();
 void screen_init();
 void display_init();
 
 // Management
 void manage_uptime();
+void manage_buzzer();
 void manage_ui();
 
 // LVGL Callbacks
@@ -93,6 +96,10 @@ bool touch_i2c_read_register(const uint16_t slave_address,
 /*****************************************************************************/
 
 /* Global Elements */
+
+// Buzzer
+PassiveBuzzer Buzzer(IO_BUZZER, 0U, ns_const::BUZZER_MIN_FREQ_HZ,
+    ns_const::BUZZER_MAX_FREQ_HZ, ns_const::BUZZER_DUTY_CYCLE);
 
 // Screen Device
 LGFX Screen;
@@ -138,6 +145,7 @@ void app_main(void)
 
     // Initializations
     i2c_setup(I2C_PORT_TOUCH, IO_I2C_SDA, IO_I2C_SCL, I2C_FREQUENCY_HZ);
+    buzzer_init();
     touch_init();
     screen_init();
     display_init();
@@ -150,6 +158,7 @@ void app_main(void)
     while(1)
     {
         manage_uptime();
+        manage_buzzer();
         manage_ui();
         vTaskDelay(10U/portTICK_PERIOD_MS);
     }
@@ -158,6 +167,32 @@ void app_main(void)
 /*****************************************************************************/
 
 /* Initialization Functions */
+
+bool buzzer_init()
+{
+    bool init_ok = true;
+
+    // Setup IO_BUZZER pin as Digital Output and set to LOW
+    gpio_num_t io_buzzer = static_cast<gpio_num_t>(IO_BUZZER);
+    gpio_config_t io_conf = {};
+    io_conf.intr_type = GPIO_INTR_DISABLE;
+    io_conf.mode = GPIO_MODE_OUTPUT;
+    io_conf.pin_bit_mask = (1ULL << io_buzzer);
+    io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
+    io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
+    printf("Buzzer GPIO cfg\n");
+    if (gpio_config(&io_conf) != ESP_OK)
+    {   init_ok = false;   }
+    printf("Buzzer GPIO set LOW\n");
+    if (gpio_set_level(io_buzzer, 0U) != ESP_OK)
+    {   init_ok = false;   }
+printf("Buzzer init\n");
+    Buzzer.init();
+    printf("Buzzer Beep\n");
+    Buzzer.beep(ns_const::BUZZER_MAX_FREQ_HZ, 100U);
+
+    return init_ok;
+}
 
 void touch_init()
 {
@@ -240,6 +275,11 @@ void manage_uptime()
         uptime = uptime + 1U;
         t0 = (uint32_t)((esp_timer_get_time() / 1000LL));
     }
+}
+
+void manage_buzzer()
+{
+    Buzzer.process();
 }
 
 void manage_ui()
@@ -366,6 +406,7 @@ void ui_draw_screen_1()
         lv_event_code_t code = lv_event_get_code(event);
         if (code == LV_EVENT_CLICKED)
         {
+            Buzzer.beep(buzzer_freq, 100U);
             printf("Button beep pressed\n");
         }
     }, LV_EVENT_ALL, NULL);

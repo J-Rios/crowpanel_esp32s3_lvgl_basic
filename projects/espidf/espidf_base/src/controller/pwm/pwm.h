@@ -1,12 +1,12 @@
 /**
- * @file    i2c.h
+ * @file    pwm.h
  * @author  Jose Miguel Rios Rubio <jrios.github@gmail.com>
  * @date    2025-01-01
  * @version 1.0.0
  *
  * @section DESCRIPTION
  *
- * ESP32 I2C controller.
+ * ESP32 PWM controller.
  *
  * @section LICENSE
  *
@@ -37,8 +37,8 @@
 
 /* Include Guard */
 
-#ifndef CONTROLLER_I2C_H
-#define CONTROLLER_I2C_H
+#ifndef CONTROLLER_PWM_H
+#define CONTROLLER_PWM_H
 
 /*****************************************************************************/
 
@@ -47,24 +47,18 @@
 // Standard C++ Libraries
 #include <cstdint>
 
-// ESP-IDF Framework
-#include "driver/i2c.h"
-
 /*****************************************************************************/
 
 /* Functions */
 
-void i2c_setup(const i2c_port_t i2c_port, const uint8_t io_sda,
-    const uint8_t io_scl, const uint32_t frequency = 100000UL);
+uint32_t ledc_setup(uint8_t chan, uint32_t freq, uint8_t bit_num);
 
-bool i2c_write(const i2c_port_t i2c_port, const uint16_t slave_address,
-    const uint8_t data_to_write);
+void ledc_attach_pin(uint8_t pin, uint8_t chan);
 
-bool i2c_read_register(const i2c_port_t i2c_port, const uint16_t slave_address,
-    const uint8_t reg_address, uint8_t* data_read);
+void ledc_write(uint8_t chan, uint32_t duty);
 
 /*****************************************************************************/
 
 /* Include Guard Close */
 
-#endif /* CONTROLLER_I2C_H */
+#endif /* CONTROLLER_PWM_H */
