@@ -46,7 +46,9 @@
 #include "freertos/task.h"
 
 // ESP-IDF Framework
+#include "esp_heap_caps.h"
 #include "esp_log.h"
+#include "esp_psram.h"
 #include "esp_system.h"
 
 // Project Headers
@@ -73,6 +75,7 @@ void app_main(void)
     printf("FW Version: v%u.%u.%u (%s %s)\n", FW_APP_VERSION_X,
         FW_APP_VERSION_Y, FW_APP_VERSION_Z, __DATE__, __TIME__);
     printf("ESP-IDF Version: %s\n", esp_get_idf_version());
+    printf("PSRAM Size: %lu Bytes\n", (uint32_t)(esp_psram_get_size()));
     printf("\n");
 
     while(1)
