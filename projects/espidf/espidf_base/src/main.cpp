@@ -52,6 +52,7 @@
 #include "esp_log.h"
 #include "esp_psram.h"
 #include "esp_system.h"
+#include "esp_timer.h"
 
 // Graphic Libraies
 #include <lvgl.h>
@@ -208,10 +209,8 @@ void display_init()
 
     // Setup Background
     lv_obj_t* screen = lv_scr_act();
-    lv_obj_set_style_bg_color(screen, COLOR_BLACK,
-        LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(screen, LV_OPA_COVER,
-        LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(screen, COLOR_BLACK, LV_PART_MAIN);
+    lv_obj_set_style_bg_opa(screen, LV_OPA_COVER, LV_PART_MAIN);
 
     // Setup Touch Control Callback
     static lv_indev_drv_t indev_drv;
@@ -231,15 +230,15 @@ void manage_uptime()
 {
     static const uint32_t T_INCREASE_UPTIME_MS = 1000U;
     static uint32_t uptime = 0U;
-    static uint32_t t0 = xTaskGetTickCount();
+    static uint32_t t0 = (uint32_t)(esp_timer_get_time() / 1000LL);
 
-    if ((uint32_t)(xTaskGetTickCount()) - t0 >= T_INCREASE_UPTIME_MS)
+    if ((uint32_t)(esp_timer_get_time() / 1000LL) - t0 >= T_INCREASE_UPTIME_MS)
     {
         snprintf(text, MAX_TEXT_LENGTH, "Uptime: %lu seconds", uptime);
         lv_label_set_text(ui_label_uptime, text);
         printf("%s\n", text);
         uptime = uptime + 1U;
-        t0 = (uint32_t)(xTaskGetTickCount());
+        t0 = (uint32_t)((esp_timer_get_time() / 1000LL));
     }
 }
 
