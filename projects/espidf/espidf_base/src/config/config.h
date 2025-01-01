@@ -68,12 +68,15 @@
 #endif
 
 // I2C Pins Touchscreen
-#define SDA_FT6236 38
-#define SCL_FT6236 39
+#define IO_I2C_SDA 38
+#define IO_I2C_SCL 39
 
 // GPIO Pins
 #define IO_LCD_BACKLIGHT 46
 #define IO_BUZZER 20
+
+// I2C Port used for TouchPanel
+#define I2C_PORT_TOUCH I2C_NUM_0
 
 /*****************************************************************************/
 
@@ -108,6 +111,11 @@ namespace ns_const
      * @brief Default Debug Serial Port Speed.
      */
     static constexpr uint32_t DEFAULT_UART_BAUD_RATE = 115200U;
+
+    /**
+     * @brief I2C Frequency.
+     */
+    static constexpr uint32_t I2C_FREQUENCY_HZ = 100000UL;
 
     /**
      * @brief Buzzer Minimum Frequency.

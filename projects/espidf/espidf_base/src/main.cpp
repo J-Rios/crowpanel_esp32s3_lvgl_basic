@@ -47,6 +47,7 @@
 
 // ESP-IDF Framework
 #include "driver/gpio.h"
+#include "controller/i2c/i2c.h"
 #include "esp_heap_caps.h"
 #include "esp_log.h"
 #include "esp_psram.h"
@@ -58,6 +59,7 @@
 // Project Headers
 #include "config/config.h"
 #include "config/config_screen.h"
+#include "touch_panel/driver_ft6236.h"
 
 /*****************************************************************************/
 
@@ -67,6 +69,7 @@
 extern "C" { void app_main(void); }
 
 // Initialization
+void touch_init();
 void screen_init();
 void display_init();
 
@@ -81,6 +84,10 @@ void display_manage_touch(lv_indev_drv_t* indev_driver, lv_indev_data_t* data);
 
 // UI Draw
 void ui_draw_screen_1();
+
+// Auxiliary Functions
+bool touch_i2c_read_register(const uint16_t slave_address,
+    const uint8_t reg_address, uint8_t* data_read);
 
 /*****************************************************************************/
 
@@ -129,8 +136,11 @@ void app_main(void)
     printf("\n");
 
     // Initializations
+    i2c_setup(I2C_PORT_TOUCH, IO_I2C_SDA, IO_I2C_SCL, I2C_FREQUENCY_HZ);
+    touch_init();
     screen_init();
     display_init();
+    printf("\n");
 
     // Draw First Screen
     ui_draw_screen_1();
@@ -148,36 +158,33 @@ void app_main(void)
 
 /* Initialization Functions */
 
+void touch_init()
+{
+    if (touch_panel_init(touch_i2c_read_register))
+    {   printf("[OK] Touch init\n");   }
+    else
+    {   printf("[FAIL] Touch init\n");   }
+}
+
 void screen_init()
 {
     bool init_ok = true;
 
-printf("Screen Init...\n");
     Screen.begin();
-    printf("Set rotation\n");
     Screen.setRotation(1U);
-    printf("Fill Screen\n");
     Screen.fillScreen(TFT_BLACK);
 
     gpio_num_t io_lcd_backlight = static_cast<gpio_num_t>(IO_LCD_BACKLIGHT);
-    //if (gpio_set_level(io_lcd_backlight, 1U) != ESP_OK)
-    //{   init_ok = false;   }
-    //if (gpio_set_direction(io_lcd_backlight, GPIO_MODE_OUTPUT) != ESP_OK)
-    //{   init_ok = false;   }
-    /******/
     gpio_config_t io_conf = {};
     io_conf.intr_type = GPIO_INTR_DISABLE;
     io_conf.mode = GPIO_MODE_OUTPUT;
     io_conf.pin_bit_mask = (1ULL << io_lcd_backlight);
     io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
     io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
-    printf("GPIO config\n");
     if (gpio_config(&io_conf) != ESP_OK)
     {   init_ok = false;   }
-    printf("GPIO Set level\n");
     if (gpio_set_level(io_lcd_backlight, 1U) != ESP_OK)
     {   init_ok = false;   }
-    /******/
 
     if (init_ok)
     {   printf("[OK] Screen init\n");   }
@@ -277,6 +284,8 @@ void display_manage_touch(lv_indev_drv_t* indev_driver, lv_indev_data_t* data)
 {
     int pos[2] = {0, 0};
 
+    touch_panel_get_position(pos);
+
     if ( (pos[0] > 0) && (pos[1] > 0) )
     {
         data->state = LV_INDEV_STATE_PR;
@@ -369,6 +378,18 @@ void ui_draw_screen_1()
         LV_PART_MAIN);
     snprintf(text, MAX_TEXT_LENGTH, "Touch X, Y: 000, 000");
     lv_label_set_text(ui_label_touch, text);
+}
+
+/*****************************************************************************/
+
+/* Auxiliary Function */
+
+bool touch_i2c_read_register(const uint16_t slave_address,
+    const uint8_t reg_address, uint8_t* data_read)
+{
+    bool result = i2c_read_register(I2C_PORT_TOUCH,
+        slave_address, reg_address, data_read);
+    return result;
 }
 
 /*****************************************************************************/
